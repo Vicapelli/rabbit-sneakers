@@ -1,5 +1,5 @@
 require "bunny"
-
+require 'json'
 
 module Consumer
   class Reciever
@@ -11,18 +11,14 @@ module Consumer
 
     q = ch.queue("soma")
 
-    @sum = 0
 
     q.subscribe(:block => true, :manual_ack => true) do |delivery_info, metadata, payload|
-        puts "subscriber recebeu número #{payload.to_i}"
+        puts "subscriber recebeu número #{payload}"
 
-        sum = @sum += payload.to_i
+        body = JSON.parse(payload)
+        result = body['first_number'] + body['second_number']
 
-        if sum == payload.to_i
-          puts "Não tem numero para somar"
-        else
-          puts "Somando com o 1 número, o resultado é: #{sum}"
-        end
+        puts "Somando com o 1 número, o resultado é: #{result}"
 
         ch.ack(delivery_info.delivery_tag)
     end
